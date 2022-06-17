@@ -2,7 +2,9 @@ const express = require('express')
 const mongoose = require('mongoose')
 const { PORT, MONGO_URL } = require('./config/config')
 const authRouter = require('./routes/authRouter')
+const userRouter = require('./routes/userRouter')
 const ApiError = require('./errors/error')
+
 
 const app = express()
 
@@ -10,13 +12,12 @@ async function _start () {
     try{
         await mongoose.connect(MONGO_URL).then(()=>{
             console.log('success')})
-      
-    
+
         app.listen(PORT, () => {
             console.log(`Example app listening on port ${PORT}`)})
     }
     catch(e){
-        console.log('Server Error')
+        console.log('Server Error1')
     }
 }
 
@@ -35,6 +36,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 app.use('/auth', authRouter)
+app.use('/', userRouter)
 app.use('*',_notFoundHandler)
 app.use(_mainErrorHendler)
 

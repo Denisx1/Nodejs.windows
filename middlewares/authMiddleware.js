@@ -1,6 +1,7 @@
 const User = require('../database/model/schema')
 const ApiError = require('../errors/error')
 const validUser = require('../validator/userValidators')
+const loginValidUser = require('../validator/authvalid')
 
 
 const newUserValidator = (req, res, next)=>{
@@ -40,7 +41,58 @@ const checkEmailIsDublickate = async (req, res, next)=>{
     }
 }
 
+const isLoginValid  = (req, res, next)=>{
+    try{
+        const { value, error } = loginValidUser.loginJoiSchema.validate(req.body)
+
+        if(error){
+            next(new ApiError('Error', 404))
+            return
+        }
+
+        req.body = value
+
+        next()
+    }catch(e){
+        next(e)
+    }
+}
+
+// Hard
+const getUserDynamically = (
+    paramName = '_id',
+    where = 'body',
+    databasefield = paramName
+    )=>{
+        return async (req, res, next)=>{
+            try{
+                const findObject = req[where]
+
+                if(!findObject || typeof findObject !== 'object'){
+                    next(new ApiError('data is abcent'))
+                    return
+                }
+
+                const param = findObject[paramName]
+                const userx = await User.findOne( { [ databasefield ]: param}).select('password')
+
+                if(!userx){
+                    next(new ApiError('not register'))
+                    return
+                }
+
+                req.user = userx
+
+                next()
+            }catch(e){
+                next(e)
+            }
+        }
+    }
+
 module.exports = {
     newUserValidator,
-    checkEmailIsDublickate
+    checkEmailIsDublickate,
+    isLoginValid,
+    getUserDynamically
 }
