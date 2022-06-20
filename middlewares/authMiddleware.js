@@ -1,7 +1,9 @@
-const User = require('../database/model/schema')
+const { User, Amodel } = require('../database')
 const ApiError = require('../errors/error')
-const validUser = require('../validator/userValidators')
-const loginValidUser = require('../validator/authvalid')
+const { validUser, loginValidUser } = require('../validator')
+const { authService } = require('../services')
+
+
 
 
 const newUserValidator = (req, res, next)=>{
@@ -89,10 +91,50 @@ const getUserDynamically = (
             }
         }
     }
+ 
+async function checkAccessToken(req, res, next){
+    try{
+        const access_token = req.get('Authorization')
+
+        if(!access_token){
+            next(new ApiError('no access token', 404))
+            return
+        }
+
+        authService.validateToken(access_token)
+        const tokenData = await Amodel.findOne({ access_token }).populate('user_id')
+
+        if(!tokenData || !tokenData.user_id){
+            next(new ApiError('You are not register', 401))
+            return
+        }
+        
+        req.authUser = tokenData.user_id
+    
+        next()
+    }catch(e){
+        next(e)
+    }
+} 
+
+function checkRefreshToken(req, res, next){
+    try{
+        const token = req.get('')
+
+        authService.validateToken(token, 'refresh')
+
+        next()
+    }catch(e){
+        next(e)
+    }
+}
+
 
 module.exports = {
     newUserValidator,
     checkEmailIsDublickate,
     isLoginValid,
-    getUserDynamically
+    getUserDynamically,
+    checkAccessToken,
+    checkRefreshToken
 }

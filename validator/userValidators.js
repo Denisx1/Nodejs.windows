@@ -1,6 +1,6 @@
-const Joi = require('joi')
+const { regexp } = require('../constants')
 
-const regexp = require('../constants/regexp')
+const Joi = require('joi')
 
 const newUserJoiSchema = Joi.object({
     name: Joi.string().alphanum().min(2).max(50).trim(),

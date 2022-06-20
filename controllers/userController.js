@@ -1,19 +1,19 @@
-const authService = require('../services/authServise')
-const User = require('../database/model/schema')
-const LoginModel = require('../database/model/authModel')
+const { authService } = require('../services')
+const { User, Amodel, Role } = require('../database')
 const ApiError = require('../errors/error')
-const Role = require('../database/userRols')
-const { removeListener } = require('../database/model/schema')
+
+
+
 
 
 module.exports = {
     getAllUser: async (req, res, next)=>{
         try{
 
-            const { limit = 5, page = 1} = req.query
-    
+            const { limit = 2, page = 1} = req.query
+            const skip = (page-1)*limit
 
-            const users = await User.find()
+            const users = await User.find().skip(skip)
             const count = await User.count({})
             
             res.json({
@@ -30,10 +30,10 @@ module.exports = {
     getLoginUser: async (req, res, next)=>{
         try{
 
-            const { limit = 4, page = 1} = req.query
-
-            const users = await LoginModel.find()
-            const count = await LoginModel.count({})
+            const { limit = 4, page = 1 } = req.query
+            const skip = (page-1)*limit
+            const users = await Amodel.find().skip(skip)
+            const count = await Amodel.count({})
 
             res.json({
                 page,
@@ -84,10 +84,24 @@ module.exports = {
             const adminRole = new Role({value:"ADMIN"})
             const userUpdate = await User.updateOne(
                 {_id: userIndex},
-                {role: [adminRole.value]}
+                {role: adminRole.value}
             )
             res.json(userUpdate)
            
+        }catch(e){
+            next(e)
+        }
+    },
+
+    downgrade: async (req, res, next)=>{
+        try{
+            const { userIndex } = req.params
+            const userRole = new Role()
+            const downRole = await User.updateOne(
+                {_id: userIndex},
+                {role: userRole.value}
+            )
+            res.json(downRole)
         }catch(e){
             next(e)
         }

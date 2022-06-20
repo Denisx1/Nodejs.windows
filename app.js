@@ -5,7 +5,6 @@ const authRouter = require('./routes/authRouter')
 const userRouter = require('./routes/userRouter')
 const ApiError = require('./errors/error')
 
-
 const app = express()
 
 async function _start () {
@@ -32,6 +31,7 @@ function _mainErrorHendler(err, req, res, next){
         data: []
     })
 }
+
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 

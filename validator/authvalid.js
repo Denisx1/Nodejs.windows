@@ -1,5 +1,5 @@
+const { regexp } = require('../constants')
 const Joi = require('joi')
-const regexp = require('../constants/regexp')
 
 const loginJoiSchema = Joi.object({
     email: Joi.string().regex(regexp.EMAIL_REGEXP).required().trim().lowercase(),
