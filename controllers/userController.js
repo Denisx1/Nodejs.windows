@@ -1,9 +1,6 @@
-const { authService } = require('../services')
+const { authService, s3Servise } = require('../services')
 const { User, Amodel, Role } = require('../database')
 const ApiError = require('../errors/error')
-
-
-
 
 
 module.exports = {
@@ -102,6 +99,19 @@ module.exports = {
                 {role: userRole.value}
             )
             res.json(downRole)
+        }catch(e){
+            next(e)
+        }
+    },
+
+    uploadUserPhoto: async (req, res, next)=>{
+        try{
+            const avatar = req.files.avatar
+            const user = req.user
+
+            const stringPromise = await s3Servise.uploadFile(avatar, 'user', user._id)
+
+            res.json(stringPromise)
         }catch(e){
             next(e)
         }

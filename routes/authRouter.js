@@ -1,6 +1,7 @@
 const { Router } = require('express')
-const { authMiddleware } = require('../middlewares')
-const { authController } = require('../controllers')
+const { authMiddleware, userMiddleware } = require('../middlewares')
+const { authController, userController } = require('../controllers')
+
 const router = Router()
 
 router.post('/register', authMiddleware.newUserValidator, authMiddleware.checkEmailIsDublickate, authController.createUser)

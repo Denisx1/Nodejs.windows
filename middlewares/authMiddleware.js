@@ -4,8 +4,6 @@ const { validUser, loginValidUser } = require('../validator')
 const { authService } = require('../services')
 
 
-
-
 const newUserValidator = (req, res, next)=>{
     try{ 
         const { error, value } = validUser.newUserJoiSchema.validate(req.body)

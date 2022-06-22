@@ -1,5 +1,6 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const fileUpload = require('express-fileupload')
 const { PORT, MONGO_URL } = require('./config/config')
 const authRouter = require('./routes/authRouter')
 const userRouter = require('./routes/userRouter')
@@ -32,12 +33,15 @@ function _mainErrorHendler(err, req, res, next){
     })
 }
 
+app.use(fileUpload())
+
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
 app.use('/auth', authRouter)
 app.use('/', userRouter)
 app.use('*',_notFoundHandler)
+
 app.use(_mainErrorHendler)
 
 _start()

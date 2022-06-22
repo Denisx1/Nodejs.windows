@@ -20,7 +20,6 @@ function hashPassword(password){
 }
 
 // tokens
-
 function generateToken(encodeData){
     const access_token = jwt.sign(encodeData, ACCESS_TOKEN_SECRET, {expiresIn: '12h'})
     const refresh_token = jwt.sign(encodeData, REFRESH_TOKEN_SECRET, {expiresIn: '30d'})
