@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form onsubmit="uploadImage(event)">
+        <input id="photo" type="file">
+        <button type="submit">Send files</button>
+    </form>
+    <script>
+        async function uploadImage(event) {
+            event.preventDefault();
+            let photo = document.getElementById("photo").files[0];
+
+            let formData = new FormData();
+            formData.append('avatar', photo);
+
+            let getPhoto = await fetch('http://localhost:5000/62ab5bbe4c805c20c77487b9/photo', {
+                method: 'POST',
+                body: formData
+            }).then(data => data.json())
+            console.log(getPhoto)
+
+            let element = document.createElement('img');
+            element.src = getPhoto;
+            document.body.appendChild(element)
+        }
+    </script>
+</body>
+</html>

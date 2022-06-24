@@ -8,6 +8,8 @@ router.post('/register', authMiddleware.newUserValidator, authMiddleware.checkEm
 
 router.post('/login', authMiddleware.isLoginValid, authMiddleware.getUserDynamically('email'), authController.login)
 
+router.get('/login/users', userController.getLoginUser)
+
 router.post('/logout',authMiddleware.checkAccessToken, authController.logout)
 
 router.post('/regresh', authMiddleware.checkRefreshToken, authController.refresh)

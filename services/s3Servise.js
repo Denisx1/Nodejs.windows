@@ -26,7 +26,6 @@ const uploadFile = async (fileToUpload, itemType, itemId) =>{
         Bucket:S3_BUCKET,
         Key
     })
-
     return signUrl
 }
 
@@ -41,9 +40,9 @@ const getPhoto = async ()=>{
 function _buildFilePath(itemType, itemId, fileName){
 
     // const extension = path.extname(fileName) //.jpg
-    const ext = fileName.split('.').pop()  //jpg
+    const extension = fileName.split('.').pop()  //jpg
 
-    return path.normalize(`${itemType}/${itemId}/${v4()}.${ext}`)
+    return path.normalize(`${itemType}/${itemId}/${v4()}.${extension}`)
 }
 
 

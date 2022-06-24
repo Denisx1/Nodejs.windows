@@ -5,6 +5,11 @@ const { PORT, MONGO_URL } = require('./config/config')
 const authRouter = require('./routes/authRouter')
 const userRouter = require('./routes/userRouter')
 const ApiError = require('./errors/error')
+const path = require('path')
+
+
+
+global.appRoot = path.resolve(__dirname);
 
 const app = express()
 
@@ -38,6 +43,7 @@ app.use(fileUpload())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
+app.use(express.static('static'));
 app.use('/auth', authRouter)
 app.use('/', userRouter)
 app.use('*',_notFoundHandler)
