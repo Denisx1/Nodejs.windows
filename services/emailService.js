@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer')
+const { User } = require('../database')
 const { SMTP_HOST, SMTP_PORT, SYSTEM_MAIL, SYSTEM_MAIL_PASSWORD, API_URL } = require('../config/config')
 
 
@@ -19,9 +20,38 @@ class MailService{
         await this.transporter.sendMail({
             from: SYSTEM_MAIL,
             to,
-            subject: `Активация аккаунта ${API_URL}`,
+            subject: `Активация аккаунта` + API_URL,
             text: '111',
+            html:
+
+                    `<div><h1>Для активации аккаунта перейдите по ссылке</h1><a href="${link}">${link}</a></div>`
+            
         })
+    }
+
+    async sandMailLogin(to){
+        await this.transporter.sendMail({
+            from: SYSTEM_MAIL,
+            to,
+            subject: 'оповещение',
+            text:'111',
+            html:
+
+                    `<div><h1>вход в аккаунт выполнен</h1></div>`
+
+        })
+    }
+
+    async activate (activationLink) {
+        const user = await User.findOne({activationLink})
+    
+        if(!user){
+            next(new ApiError('uncorrect linc activation', 400))
+        }
+
+        user.isActivated = true
+
+        await user.save()
     }
 }
 

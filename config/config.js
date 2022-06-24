@@ -15,6 +15,7 @@ module.exports = {
     SYSTEM_MAIL_PASSWORD: process.env.SYSTEM_MAIL_PASSWORD,
 
     API_URL: process.env.API_URL,
+    CLIENT_URL: process.env.CLIENT_URL,
 
     S3_BUCKET: process.env.S3_BUCKET,
     S3_BUCKET_REGION: process.env.S3_BUCKET_REGION,
