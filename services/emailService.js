@@ -42,6 +42,19 @@ class MailService{
         })
     }
 
+    async forgotPassword(to){
+        await this.transporter.sendMail({
+            from: SYSTEM_MAIL,
+            to,
+            subject: 'оповещение',
+            text:'111',
+            html:
+
+                    `<div><h1>пароль изменен</h1></div>`
+
+        })
+    }
+
     async activate (activationLink) {
         const user = await User.findOne({activationLink})
     

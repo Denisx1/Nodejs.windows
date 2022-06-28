@@ -1,7 +1,11 @@
 const { authService, emailService } = require('../services')
-const { User, Amodel, Role } = require('../database')
-const { API_URL, CLIENT_URL } = require('../config/config')
+const { User, Amodel, Role, ActionToken } = require('../database')
+const { API_URL, CLIENT_URL, ACTION_TOKEN_SECRET } = require('../config/config')
+const { actionTypeEnum, emailActionEnum } = require('../constants')
 const uuid = require('uuid')
+const ApiError  = require('../errors/error')
+
+
 
 
 module.exports = {
@@ -90,7 +94,53 @@ module.exports = {
 
             res.redirect(CLIENT_URL)
         }catch(e){
-            console.log(e)
+            next(e)
+        }
+    },
+
+    forgotPassword: async (req, res, next)=>{
+        try{
+            const { user: {_id, name} } = req
+            const { email } = req.body
+            const token = authService.genrateActionToken({ userId: _id})
+
+            await ActionToken.create({
+                token,
+                user_id: _id,
+                actionType: actionTypeEnum.FORGOT_PASSWORD
+            })
+
+            const forgotPasswordUrl = `${ CLIENT_URL }/password/forgot?token = ${ token }`
+
+            await emailService.forgotPassword(email, emailActionEnum.FORGOT_PASSWORD, {
+                forgotPasswordUrl,
+                userName: name
+            })
+
+            res.json('Logout its ok')
+        }catch(e){
+            next(e)
+        }
+    },
+
+    setPasswordAfterForgot: async (req, res, next)=>{
+        try{
+            const { user: { _id }, body } = req
+            const newPassword = await authService.hashPassword(body.password)
+
+            await User.updateOne(
+                {_id: _id},
+                {password: newPassword})
+
+            await Amodel.deleteMany({user_id: _id})
+            
+            await ActionToken.deleteMany({token: body.token})
+
+            res.json('Ok')
+
+            next()
+        }catch(e){
+            next(e)
         }
     }
 }
