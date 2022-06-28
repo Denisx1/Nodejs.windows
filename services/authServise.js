@@ -11,7 +11,7 @@ const comparePassword = async (hashPassword, password)=>{
     const isPasswordSame = await bcrypt.compare(password, hashPassword)
 
     if(!isPasswordSame){
-        next(new ApiError('Wrong password'))
+        throw new ApiError('Wrong password')
     }
 }
 

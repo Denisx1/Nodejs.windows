@@ -9,7 +9,7 @@ const router = Router()
 
 router.post('/register', authMiddleware.newUserValidator, authMiddleware.checkEmailIsDublickate, authController.createUser)
 
-router.post('/login', authMiddleware.isLoginValid, authController.login)
+router.post('/login', authMiddleware.authValidator, authController.login)
 
 router.get('/login/users', userController.getLoginUser)
 
@@ -19,10 +19,7 @@ router.post('/logout',authMiddleware.checkAccessToken, authController.logout)
 
 router.post('/regresh', authMiddleware.checkRefreshToken, authController.refresh)
 
-router.post('/password/forgot',
-authMiddleware.validEmail,
-
-authController.forgotPassword)
+router.post('/password/forgot',authMiddleware.authValidator, authController.forgotPassword)
 
 router.patch('/password/forgot', authMiddleware.checkActionToken(FORGOT_PASSWORD, forgotPasswordJoiSchema), authController.setPasswordAfterForgot)
 

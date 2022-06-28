@@ -37,19 +37,18 @@ module.exports = {
         }
     },
 
-    login: async (req, res, next)=>{
+    login: async (req, res)=>{
         try{
-            const { user, body: { password } } = req
-            const { email } = req.body
-
+            const { user,  password, email } = req.body
+          
             await authService.comparePassword(user.password, password)
-
+            
             const tokenPair = authService.generateToken( { userId: user._id } )
-
+           
             await Amodel.create({user_id: user._id, ...tokenPair})
-
+           
             await emailService.sandMailLogin(email)
-
+            
             res.json({
                 ...tokenPair,
                 user,
@@ -57,7 +56,7 @@ module.exports = {
             })
 
         }catch(e){
-            next(e)
+            console.error(e)
         }
     },
 

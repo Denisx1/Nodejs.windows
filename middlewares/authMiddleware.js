@@ -5,11 +5,11 @@ const { authService } = require('../services')
 
 
 
-const newUserValidator = (req, res, next)=>{
-    try{ 
+const newUserValidator = (req, res, next) => {
+    try {
         const { error, value } = validUser.newUserJoiSchema.validate(req.body)
 
-        if(error){
+        if (error) {
             next(new ApiError(error.details[0].message, 400))
             return
         }
@@ -17,47 +17,43 @@ const newUserValidator = (req, res, next)=>{
         req.body = value
 
         next()
-    }catch(e){
+    } catch (e) {
         next(e)
     }
 }
 
-const checkEmailIsDublickate = async (req, res, next)=>{
-    try{
+const checkEmailIsDublickate = async (req, res, next) => {
+    try {
         const { email = '' } = req.body
 
-        if(!email){
+        if (!email) {
             next(new ApiError('Email is required', 400))
         }
 
-        const isUserPresent = await User.findOne({email: email.toLowerCase().trim()})
+        const isUserPresent = await User.findOne({ email: email.toLowerCase().trim() })
 
-        if(isUserPresent){
+        if (isUserPresent) {
             next(new ApiError('This user is Exists'))
         }
 
         next()
-    }catch(e){
+    } catch (e) {
         next(e)
     }
 }
 
-const isLoginValid  = (req, res, next)=>{
-    try{
-        const { value, error } = loginValidUser.loginJoiSchema.validate(req.body)
-        console.log(value)
-        if(error){
-            next(new ApiError('Error', 404))
-            return
-        }
-
-        req.body = value
-
-        next()
-    }catch(e){
-        next(e)
-    }
-}
+// const isLoginValid  = (req, res, next)=>{
+//     try{
+//         const { value, error } = loginValidUser.loginJoiSchema.validate(req.body)
+//         console.log(value)
+//         if(error){
+//             throw new ApiError('Error', 404)
+//         }
+//         next()
+//     }catch(e){
+//         next(e)
+//     }
+// }
 
 // Hard
 // const getUserDynamically = (
@@ -90,12 +86,12 @@ const isLoginValid  = (req, res, next)=>{
 //             }
 //         }
 //     }
- 
-async function checkAccessToken(req, res, next){
-    try{
+
+async function checkAccessToken(req, res, next) {
+    try {
         const access_token = req.get('Authorization')
 
-        if(!access_token){
+        if (!access_token) {
             next(new ApiError('no access token', 404))
             return
         }
@@ -103,77 +99,66 @@ async function checkAccessToken(req, res, next){
         authService.validateToken(access_token)
         const tokenData = await Amodel.findOne({ access_token }).populate('user_id')
 
-        if(!tokenData || !tokenData.user_id){
+        if (!tokenData || !tokenData.user_id) {
             next(new ApiError('You are not register', 401))
             return
         }
-        
+
         req.authUser = tokenData.user_id
-    
+
         next()
-    }catch(e){
+    } catch (e) {
         next(e)
     }
-} 
+}
 
-function checkActionToken(actionType){
-    return async function (req, res, next){
-        try{
-            const { token }= req.body
+function checkActionToken(actionType) {
+    return async function (req, res, next) {
+        try {
+            const { token } = req.body
             authService.validateToken(token, actionType)
 
-            const tokenData = await ActionToken.findOne({token, actionType}).populate('user_id')
+            const tokenData = await ActionToken.findOne({ token, actionType }).populate('user_id')
 
-            if(!tokenData || !tokenData.user_id){
+            if (!tokenData || !tokenData.user_id) {
                 return next(new ApiError('Token not valid', 400))
             }
 
             req.user = tokenData.user_id
             next()
-        }catch(e){
+        } catch (e) {
             next(e)
         }
     }
 }
 
-function checkRefreshToken(req, res, next){
-    try{
+function checkRefreshToken(req, res, next) {
+    try {
         const token = req.get('')
 
         authService.validateToken(token, 'refresh')
 
         next()
-    }catch(e){
+    } catch (e) {
         next(e)
     }
 }
 
-async function validEmail (req, res, next){
-    
-    try{
+async function authValidator(req, res, next) {
+    try {
         const { error, value } = loginValidUser.loginJoiSchema.validate(req.body)
-    
-        if(!password){
-            throw new ApiError('111', 400)
-        }
-
-
 
         if(error){
-            throw new ApiError('email is not valid')  
+            throw new ApiError('Error', 500)
         }
-
-        const userx = await User.findOne( { [ databasefield ]: email }).select('password')
-
-        if(!userx){
-            next(new ApiError('not register'))
-        }
-
-        req.body = value
         
+        const userx = await User.findOne({
+            email: value.email
+        })
 
+        req.body.user = userx
         next()
-    }catch(e){
+    } catch (e) {
         next()
     }
 }
@@ -187,7 +172,7 @@ module.exports = {
     checkEmailIsDublickate,
     checkAccessToken,
     checkRefreshToken,
-    validEmail,
+    authValidator,
     checkActionToken,
-    isLoginValid
+
 }
