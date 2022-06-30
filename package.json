@@ -4,9 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --inspect=0.0.0.0:9229 app.js",
-    "pm": "pm2 kill && echo SERVER WAS KILLED && pm2 start app.js --attach --watch --name Node.Windows"
+    "pm": "pm2 kill && pm2 start app.js --attach --watch --name Server"
   },
   "author": "",
   "license": "ISC",
