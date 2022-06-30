@@ -154,7 +154,7 @@ async function authValidator(req, res, next) {
         
         const userx = await User.findOne({
             email: value.email
-        })
+        }).select('password')
 
         req.body.user = userx
         next()

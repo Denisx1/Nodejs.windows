@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken')
 
 
 const comparePassword = async (hashPassword, password)=>{
+ 
     const isPasswordSame = await bcrypt.compare(password, hashPassword)
 
     if(!isPasswordSame){

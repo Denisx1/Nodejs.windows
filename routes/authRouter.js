@@ -1,7 +1,6 @@
 const { Router } = require('express')
-const { authMiddleware, userMiddleware } = require('../middlewares')
+const { authMiddleware } = require('../middlewares')
 const { authController, userController } = require('../controllers')
-const { activate } = require('../services/emailService')
 const { FORGOT_PASSWORD } = require('../constants')
 const { forgotPasswordJoiSchema } = require('../validator')
 
