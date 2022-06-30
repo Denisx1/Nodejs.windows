@@ -3,29 +3,22 @@ const { User, Amodel, Role, ActionToken } = require('../database')
 const { API_URL, CLIENT_URL, ACTION_TOKEN_SECRET } = require('../config/config')
 const { actionTypeEnum, emailActionEnum } = require('../constants')
 const uuid = require('uuid')
-const ApiError  = require('../errors/error')
-
-
 
 
 module.exports = {
     createUser: async (req, res, next)=>{
         try{
             const { email } = req.body
-
+            
             const hashPassword = await authService.hashPassword(req.body.password)
-
+            
             const activationLink = uuid.v4()
-
-            const userRole = await Role.findOne({value: "USER"})
-
+           
             const createUser = await User.create({
                 ...req.body,
                 password:hashPassword,
-                role: userRole.value,
                 activationLink
             })
-
             await emailService.sendActivationMail(email, `${API_URL}/auth/activate/${activationLink}`)
 
             res.json({
@@ -37,9 +30,9 @@ module.exports = {
         }
     },
 
-    login: async (req, res)=>{
+    login: async (req, res, next)=>{
         try{
-            const { user,  password, email } = req.body
+            const { user, body:{password, email} } = req
           
             await authService.comparePassword(user.password, password)
             
@@ -56,7 +49,7 @@ module.exports = {
             })
 
         }catch(e){
-            console.error(e)
+            next(e)
         }
     },
 

@@ -78,7 +78,7 @@ module.exports = {
     updateUserRols: async (req, res, next) => {
         try {
             const { userIndex } = req.params
-            const adminRole = new Role({ value: "ADMIN" })
+            const adminRole = new Role({value: 'ADMIN'})
             const userUpdate = await User.updateOne(
                 { _id: userIndex },
                 { role: adminRole.value }

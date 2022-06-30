@@ -8,16 +8,16 @@ const jwt = require('jsonwebtoken')
 
 
 const comparePassword = async (hashPassword, password)=>{
- 
     const isPasswordSame = await bcrypt.compare(password, hashPassword)
-
+    
     if(!isPasswordSame){
-        throw new ApiError('Wrong password')
+        throw new ApiError('Wrong Password', 400)
     }
+   
 }
 
 function hashPassword(password){
-    return bcrypt.hash(password, 10)
+    return bcrypt.hash(password, 7)
 }
 
 // tokens

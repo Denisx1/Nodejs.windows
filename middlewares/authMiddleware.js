@@ -15,7 +15,7 @@ const newUserValidator = (req, res, next) => {
         }
 
         req.body = value
-
+        
         next()
     } catch (e) {
         next(e)
@@ -24,7 +24,7 @@ const newUserValidator = (req, res, next) => {
 
 const checkEmailIsDublickate = async (req, res, next) => {
     try {
-        const { email = '' } = req.body
+        const { email = ''} = req.body
 
         if (!email) {
             next(new ApiError('Email is required', 400))
@@ -35,7 +35,7 @@ const checkEmailIsDublickate = async (req, res, next) => {
         if (isUserPresent) {
             next(new ApiError('This user is Exists'))
         }
-
+        
         next()
     } catch (e) {
         next(e)
@@ -45,17 +45,19 @@ const checkEmailIsDublickate = async (req, res, next) => {
 // const isLoginValid  = (req, res, next)=>{
 //     try{
 //         const { value, error } = loginValidUser.loginJoiSchema.validate(req.body)
-//         console.log(value)
+    
 //         if(error){
-//             throw new ApiError('Error', 404)
+//             next(new ApiError('Error', 404))
 //         }
+
+//         req.body = value
 //         next()
 //     }catch(e){
 //         next(e)
 //     }
 // }
 
-// Hard
+// // Hard
 // const getUserDynamically = (
 //     paramName = '_id',
 //     where = 'body',                                                                                                         
@@ -149,17 +151,24 @@ async function authValidator(req, res, next) {
         const { error, value } = loginValidUser.loginJoiSchema.validate(req.body)
 
         if(error){
-            throw new ApiError('Error', 500)
+            next(new ApiError('Error', 500))
+            return
         }
-        
+    
         const userx = await User.findOne({
-            email: value.email
+            email: value.email,
         }).select('password')
 
-        req.body.user = userx
+        if(!userx){
+            next(new ApiError('not Registered', 500))
+            return
+        }
+
+        req.user = userx
+
         next()
     } catch (e) {
-        next()
+        next(e)
     }
 }
 
@@ -173,6 +182,5 @@ module.exports = {
     checkAccessToken,
     checkRefreshToken,
     authValidator,
-    checkActionToken,
-
+    checkActionToken
 }

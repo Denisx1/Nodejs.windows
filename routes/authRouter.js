@@ -18,7 +18,7 @@ router.post('/logout',authMiddleware.checkAccessToken, authController.logout)
 
 router.post('/regresh', authMiddleware.checkRefreshToken, authController.refresh)
 
-router.post('/password/forgot',authMiddleware.authValidator, authController.forgotPassword)
+router.post('/password/forgot', authController.forgotPassword)
 
 router.patch('/password/forgot', authMiddleware.checkActionToken(FORGOT_PASSWORD, forgotPasswordJoiSchema), authController.setPasswordAfterForgot)
 
