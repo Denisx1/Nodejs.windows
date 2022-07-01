@@ -6,95 +6,96 @@ const uuid = require('uuid')
 
 
 module.exports = {
-    createUser: async (req, res, next)=>{
-        try{
-            const { email } = req.body
-            
-            const hashPassword = await authService.hashPassword(req.body.password)
-            
+    createUser: async (req, res, next) => {
+        try {
+            const { email, password } = req.body
+
+            const hashPassword = await authService.hashPassword(password)
+
             const activationLink = uuid.v4()
-           
+
             const createUser = await User.create({
                 ...req.body,
-                password:hashPassword,
+                password: hashPassword,
                 activationLink
             })
-            await emailService.sendActivationMail(email, `${API_URL}/auth/activate/${activationLink}`)
+
+            const sendMail = await emailService.sendActivationMail(email, `${API_URL}/auth/activate/${activationLink}`)
 
             res.json({
                 createUser,
-                Text: `проверьте почту ${email} и кликните на ссылку активации`
+                text: `проверьте почту ${sendMail} и кликните на ссылку активации`
             })
-        }catch(e){
+        } catch (e) {
             next(e)
         }
     },
 
-    login: async (req, res, next)=>{
-        try{
-            const { user, body:{password, email} } = req
-          
+    login: async (req, res, next) => {
+        try {
+            const { password, email, user } = req.body
+
             await authService.comparePassword(user.password, password)
-            
-            const tokenPair = authService.generateToken( { userId: user._id } )
-           
-            await Amodel.create({user_id: user._id, ...tokenPair})
-           
+
+            const tokenPair = authService.generateToken({ userId: user._id })
+
+            await Amodel.create({ user_id: user._id, ...tokenPair })
+
             await emailService.sandMailLogin(email)
-            
+
             res.json({
                 ...tokenPair,
                 user,
                 Text: 'Вход выполен'
             })
 
-        }catch(e){
+        } catch (e) {
             next(e)
         }
     },
 
-    logout: async (req, res, next)=>{
-        try{
+    logout: async (req, res, next) => {
+        try {
             const authUser = req.authUser
-            
-            await Amodel.deleteMany({user_id: req.authUser._id})
+
+            await Amodel.deleteMany({ user_id: req.authUser._id })
 
             res.json('logout its ok')
-        }catch(e){
+        } catch (e) {
             next(e)
         }
     },
 
-    refresh: async (req, res, next)=>{
-        try{
-            const {authUser} = req
-            const tokenPair = authService.generateToken({userId: authUser._id})
+    refresh: async (req, res, next) => {
+        try {
+            const { authUser } = req
+            const tokenPair = authService.generateToken({ userId: authUser._id })
 
-            await Amodel.create({user_id: authUser._id, ...tokenPair})
+            await Amodel.create({ user_id: authUser._id, ...tokenPair })
 
-            res.json({...tokenPair, authUser})
-        }catch(e){
+            res.json({ ...tokenPair, authUser })
+        } catch (e) {
             next(e)
         }
     },
 
-    activation: async (req, res, next) =>{
-        try{
+    activation: async (req, res, next) => {
+        try {
             const activationLink = req.params.link
 
             await emailService.activate(activationLink)
 
             res.redirect(CLIENT_URL)
-        }catch(e){
+        } catch (e) {
             next(e)
         }
     },
 
-    forgotPassword: async (req, res, next)=>{
-        try{
-            const { user: {_id, name} } = req
+    forgotPassword: async (req, res, next) => {
+        try {
+            const { user: { _id, name } } = req
             const { email } = req.body
-            const token = authService.genrateActionToken({ userId: _id})
+            const token = authService.genrateActionToken({ userId: _id })
 
             await ActionToken.create({
                 token,
@@ -102,7 +103,7 @@ module.exports = {
                 actionType: actionTypeEnum.FORGOT_PASSWORD
             })
 
-            const forgotPasswordUrl = `${ CLIENT_URL }/password/forgot?token = ${ token }`
+            const forgotPasswordUrl = `${CLIENT_URL}/password/forgot?token = ${token}`
 
             await emailService.forgotPassword(email, emailActionEnum.FORGOT_PASSWORD, {
                 forgotPasswordUrl,
@@ -110,28 +111,28 @@ module.exports = {
             })
 
             res.json('Logout its ok')
-        }catch(e){
+        } catch (e) {
             next(e)
         }
     },
 
-    setPasswordAfterForgot: async (req, res, next)=>{
-        try{
+    setPasswordAfterForgot: async (req, res, next) => {
+        try {
             const { user: { _id }, body } = req
             const newPassword = await authService.hashPassword(body.password)
 
             await User.updateOne(
-                {_id: _id},
-                {password: newPassword})
+                { _id: _id },
+                { password: newPassword })
 
-            await Amodel.deleteMany({user_id: _id})
-            
-            await ActionToken.deleteMany({token: body.token})
+            await Amodel.deleteMany({ user_id: _id })
+
+            await ActionToken.deleteMany({ token: body.token })
 
             res.json('Ok')
 
             next()
-        }catch(e){
+        } catch (e) {
             next(e)
         }
     }

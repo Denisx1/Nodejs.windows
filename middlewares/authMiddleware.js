@@ -11,7 +11,7 @@ const newUserValidator = (req, res, next) => {
 
         if (error) {
             next(new ApiError(error.details[0].message, 400))
-            return
+            
         }
 
         req.body = value
@@ -24,13 +24,13 @@ const newUserValidator = (req, res, next) => {
 
 const checkEmailIsDublickate = async (req, res, next) => {
     try {
-        const { email = ''} = req.body
+        const { email, error } = req.body
 
-        if (!email) {
+        if (error) {
             next(new ApiError('Email is required', 400))
         }
 
-        const isUserPresent = await User.findOne({ email: email.toLowerCase().trim() })
+        const isUserPresent = await User.findOne({ email: email.toLowerCase() })
 
         if (isUserPresent) {
             next(new ApiError('This user is Exists'))
@@ -164,7 +164,7 @@ async function authValidator(req, res, next) {
             return
         }
 
-        req.user = userx
+        req.body.user = userx
 
         next()
     } catch (e) {

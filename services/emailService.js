@@ -2,14 +2,13 @@ const nodemailer = require('nodemailer')
 const { User } = require('../database')
 const { SMTP_HOST, SMTP_PORT, SYSTEM_MAIL, SYSTEM_MAIL_PASSWORD, API_URL } = require('../config/config')
 
-
-class MailService{
-    constructor(){
+class MailService {
+    constructor() {
         this.transporter = nodemailer.createTransport({
             host: SMTP_HOST,
             port: SMTP_PORT,
             secure: false,
-            auth:{
+            auth: {
                 user: SYSTEM_MAIL,
                 pass: SYSTEM_MAIL_PASSWORD
             }
