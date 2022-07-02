@@ -35,6 +35,8 @@ module.exports = {
         try {
             const { password, email, user } = req.body
 
+            await user.checkIsPasswordsSame(password)
+
             await authService.comparePassword(user.password, password)
 
             const tokenPair = authService.generateToken({ userId: user._id })

@@ -6,7 +6,9 @@ const authRouter = require('./routes/authRouter')
 const userRouter = require('./routes/userRouter')
 const ApiError = require('./errors/error')
 const path = require('path')
-
+const cronRun = require('./cronJops')
+const swaggerUi = require('swagger-ui-express')
+const swaggerJson = require('./swagger.json')
 
 const app = express()
 
@@ -17,6 +19,8 @@ async function _start () {
 
         app.listen(PORT, () => {
             console.log(`Example app listening on port ${PORT}`)})
+
+            cronRun()
     }
     catch(e){
         console.log('Server Error1')
@@ -34,6 +38,7 @@ function _mainErrorHendler(err, req, res, next){
         data: []
     })
 }
+
 global.appRoot = path.resolve(__dirname);
 
 app.use(fileUpload())
@@ -49,6 +54,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.static('dev'));
 app.use('/auth', authRouter)
 app.use('/', userRouter)
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerJson))
 app.use('*',_notFoundHandler)
 
 app.use(_mainErrorHendler)

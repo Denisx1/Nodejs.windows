@@ -4,9 +4,6 @@ const ApiError = require('../errors/error')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-
-
-
 const comparePassword = async (hashPassword, password)=>{
     const isPasswordSame = await bcrypt.compare(password, hashPassword)
     
@@ -35,7 +32,12 @@ function genrateActionToken(actionType, encodeData = {}){
         return jwt.sign(encodeData, 's', {expiresIn: '24h'})
 } 
 
-
+/**
+ * 
+ * @param token - this is token to check: 13rtwretiuy9qowlkag
+ * @param tokenType 
+ * @returns {*} 
+ */
 function validateToken(token, tokenType = tokenTypeEnum.ACCESS) {
     try{
         let secret = ACCESS_TOKEN_SECRET
