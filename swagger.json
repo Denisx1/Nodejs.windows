@@ -1,0 +1,132 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Hebron Rocket Course",
+        "version": "1.29.58",
+        "description": "Rocket Course Node.js"
+    },
+    "paths": {
+        "/users": {
+            "get": {
+                "description": "Get all users",
+                "tags": ["User"],
+                "operationId": "GetAllUsers",
+                "responses": {
+                    "200": {
+                        "description": "Return all users from DB",
+                        "schema": {
+                            "type":"array",
+                            "items": {
+                                "properties": {
+                                    "name":{
+                                        "type": "string",
+                                        "example": "Denis"
+                                    },
+                                    "age":{
+                                        "type":"number",
+                                        "example": 21
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ERROR",
+                        "schema":{
+                            "type":"object",
+                            "properties": {
+                                "message":{
+                                    "type":"string",
+                                    "example": "Error was okurred"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Registration",
+                "tags": ["User"],
+                "operationId": "CreateNewUser",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "name",
+                        "in": "formData",
+                        "default": "Denis"
+                    },
+                    {
+                        "type": "number",
+                        "name": "age",
+                        "in": "formData",
+                        "default": 21,
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "in": "header",
+                        "name": "Authorization",
+                        "default": "",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200":{
+                        "description": "OK",
+                        "schema":{
+                            "type":"object",
+                            "properties": {
+
+                            }
+                        }
+                    },
+                    "400":{
+                        "description": "Error",
+                        "schema":{
+                            "$ref": "#/definitions/errorSchema"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "oneUser":{
+            "type":"object",
+            "properties": {
+                "email":{
+                    "type":"string",
+                    "example": "re20011975@hostage.com",
+                    "default": "User Email"
+                },
+                "name":{
+                    "type":"string",
+                    "example":"Denis"
+                },
+                "age":{
+                    "type":"number",
+                    "example": 21
+                }
+            }
+        },
+        "errorSchema":{
+            "type":"object",
+            "properties": {
+                "message":{
+                    "type":"string",
+                    "example": "Email is not valid"
+                },
+                "data":{
+                    "description": "customer email",
+                    "type":"string",
+                    "example":"admingamesoft.com"
+                },
+                "customCode":{
+                    "description": "Custom error",
+                    "type":"number",
+                    "example": 401
+                }
+            }
+        }
+    }
+}

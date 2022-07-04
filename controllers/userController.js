@@ -1,25 +1,15 @@
-const { s3Servise } = require('../services')
 const { User, Amodel, Role } = require('../database')
+const { s3Servise, userServise } = require('../services')
 const ApiError = require('../errors/error')
-const fs = require('fs')
-const path = require('path')
+
 
 
 module.exports = {
     getAllUser: async (req, res, next) => {
         try {
-            const { limit = 2, page = 1 } = req.query
-            const skip = (page - 1) * limit
+            const paginationResponse = await userServise.getUsersWithCount(req.query)
 
-            const users = await User.find().skip(skip)
-            const count = await User.count({})
-
-            res.json({
-                page,
-                parPage: limit,
-                data: users,
-                count
-            })
+            res.json(paginationResponse)
         } catch (e) {
             next(e)
         }
@@ -78,7 +68,7 @@ module.exports = {
     updateUserRols: async (req, res, next) => {
         try {
             const { userIndex } = req.params
-            const adminRole = new Role({ value: "ADMIN" })
+            const adminRole = new Role({value: 'ADMIN'})
             const userUpdate = await User.updateOne(
                 { _id: userIndex },
                 { role: adminRole.value }

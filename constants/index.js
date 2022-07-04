@@ -1,5 +1,6 @@
 module.exports = {
     actionTypeEnum: require('./actinTypeEnum'),
     regexp: require('./regexp'),
-    tokenTypeEnum: require('./tokentypeEnum')
+    tokenTypeEnum: require('./tokentypeEnum'),
+    emailActionEnum: require('./emailActionEnum')
 }

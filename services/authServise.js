@@ -4,19 +4,17 @@ const ApiError = require('../errors/error')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-
-
-
 const comparePassword = async (hashPassword, password)=>{
     const isPasswordSame = await bcrypt.compare(password, hashPassword)
-
+    
     if(!isPasswordSame){
-        next(new ApiError('Wrong password'))
+        throw new ApiError('Wrong Password', 400)
     }
+   
 }
 
 function hashPassword(password){
-    return bcrypt.hash(password, 10)
+    return bcrypt.hash(password, 7)
 }
 
 // tokens
@@ -34,7 +32,12 @@ function genrateActionToken(actionType, encodeData = {}){
         return jwt.sign(encodeData, 's', {expiresIn: '24h'})
 } 
 
-
+/**
+ * 
+ * @param token - this is token to check: 13rtwretiuy9qowlkag
+ * @param tokenType 
+ * @returns {*} 
+ */
 function validateToken(token, tokenType = tokenTypeEnum.ACCESS) {
     try{
         let secret = ACCESS_TOKEN_SECRET
