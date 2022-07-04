@@ -1,6 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { authService } = require('../services')
-
+const authService = require('../services/authServise')
 
 const User = new Schema({
     name: { type: String, trim: true, required: true },
@@ -22,9 +21,9 @@ const User = new Schema({
     }
 );
 
-// User.virtual('fullName').get(function () {
-//     return this.name
-// })
+User.virtual('fullName').get(function () {
+    return this.name
+})
 
 User.statics = {
     async saveUserWuthHashPassword(userToSave) {
@@ -39,8 +38,6 @@ User.statics = {
 
 User.methods = {
     checkIsPasswordsSame(password) {
-        // await authService.comparePassword(this.password, password)
-
         console.log(password)
     },
 

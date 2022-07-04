@@ -1,38 +1,44 @@
-const {User} = require('../database')
+const { User } = require('../database')
 
 module.exports = {
-    getUsersWithCount: async (query = {}) => {
-        try {
-            console.log(User)
-            const { limit = 20, page = 1, search } = query;
-            const skip = (page - 1) * limit;
+  getUsersWithCount: async (query = {}) => {
+    const { limit = 20, page = 1, ...otherFilters } = query;
+    const skip = (page - 1) * limit;
 
-            let filterObject = {};
+    let filterObject = {};
 
-            if (search) {
-                filterObject = {
-                    name: search,
-
-                    // email: { $regex: search, $options: 'i' }
-                },
-                    'name email'
-            }
-            console.log(search)
-            console.log(filterObject)
-
-            const users = await User.find({ name: search }, 'name email')
-            const count = await User.count(filterObject);
-            console.log(users)
-
-
-            return {
-                page,
-                parPage: limit,
-                data: users,
-                // count
-            }
-        }catch(e){
-            console.log(e)
-        }
+    if (otherFilters.search) {
+      filterObject = {
+        ...filterObject,
+        $or: [
+          { name: { $regex: otherFilters.search, $options: 'i' } },
+          { email: { $regex: otherFilters.search, $options: 'i' } },
+        ]
+      }
     }
-}
+
+    if (otherFilters.ageGte) {
+      filterObject = {
+        ...filterObject,
+        age: { $gte: +otherFilters.ageGte }
+      }
+    }
+
+    if (otherFilters.ageLte) {
+      filterObject = {
+        ...filterObject,
+        age: Object.assign(filterObject.age || {}, { $lte: +otherFilters.ageLte })
+      }
+    }
+
+    const users = await User.find(filterObject).limit(limit).skip(skip);
+    const count = await User.count(filterObject);
+
+    return {
+      page,
+      perPage: limit,
+      data: users,
+      count
+    }
+  }
+};
