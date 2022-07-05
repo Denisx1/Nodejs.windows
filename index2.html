@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+    <button id="send">SEND MESSAGE</button>
+    <button id="broadcast"> BROADCAST </button>
+    <button id="broadcastNotMe"> BROADCAST AVOID SENDER </button>
+    <script>
+        const authToken = '324513245324'
+        let elmentById = document.getElementById('send')
+        let broadcast = document.getElementById('broadcast')
+        let  broadcastNotMe = document.getElementById('broadcastNotMe')
+        const socket = io('http://localhost:5000', { query: `token=${authToken}&user=555`})
+
+        elmentById.onclick = () =>{
+            socket.emit('message:create', { data: 'HELLO WORLD'})
+        }
+
+        broadcast.onclick = () => {
+            socket.emit('broadcast:to:all', {})
+        }
+
+        broadcastNotMe.onclick = () => {
+            socket.emit('broadcast:not:me', {})
+        }
+        
+        socket.on('message:save', (data)=>{
+            console.log(data)
+        })
+        
+        socket.on('broadcast:all', ()=>{
+            document.write("BROADCAST TO ALL USERS")
+        })
+
+        socket.on('broadcast:not:me', () => {
+            document.write('BROADCAST AVOID SENDER')
+        })
+    </script>   
+</body>
+</html>

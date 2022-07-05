@@ -58,36 +58,36 @@ const checkEmailIsDublickate = async (req, res, next) => {
 // }
 
 // // Hard
-// const getUserDynamically = (
-//     paramName = '_id',
-//     where = 'body',                                                                                                         
-//     databasefield = paramName
-//     )=>{
-//         return async (req, res, next)=>{
-//             try{
-//                 const findObject = req[where]
+const getUserDynamically = (
+    paramName = '_id',
+    where = 'body',                                                                                                         
+    databasefield = paramName
+    )=>{
+        return async (req, res, next)=>{
+            try{
+                const findObject = req[where]
 
-//                 if(!findObject || typeof findObject !== 'object'){
-//                     next(new ApiError('data is abcent'))
-//                     return
-//                 }
+                if(!findObject || typeof findObject !== 'object'){
+                    next(new ApiError('data is abcent'))
+                    return
+                }
 
-//                 const param = findObject[paramName]
-//                 const userx = await User.findOne( { [ databasefield ]: param}).select('password')
+                const param = findObject[paramName]
+                const userx = await User.findOne( { [ databasefield ]: param}).select('password')
 
-//                 if(!userx){
-//                     next(new ApiError('not register'))
-//                     return
-//                 }
+                if(!userx){
+                    next(new ApiError('not register'))
+                    return
+                }
 
-//                 req.user = userx
+                req.user = userx
 
-//                 next()
-//             }catch(e){
-//                 next(e)
-//             }
-//         }
-//     }
+                next()
+            }catch(e){
+                next(e)
+            }
+        }
+    }
 
 async function checkAccessToken(req, res, next) {
     try {
@@ -182,5 +182,6 @@ module.exports = {
     checkAccessToken,
     checkRefreshToken,
     authValidator,
-    checkActionToken
+    checkActionToken,
+    getUserDynamically
 }

@@ -19,7 +19,7 @@
             let formData = new FormData();
             formData.append('avatar', photo);
 
-            let getPhoto = await fetch('http://localhost:5000/62ab5bbe4c805c20c77487b9/photo', {
+            let getPhoto = await fetch('http://localhost:5000/62c28bb5969e9e2e25feb3f6/photo', {
                 method: 'POST',
                 body: formData
             }).then(data => data.json())
