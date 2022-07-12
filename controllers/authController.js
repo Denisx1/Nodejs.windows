@@ -1,6 +1,6 @@
 const { authService, emailService } = require('../services')
 const { User, Amodel, Role, ActionToken } = require('../database')
-const { API_URL, CLIENT_URL, ACTION_TOKEN_SECRET } = require('../config/config')
+const { API_URL, CLIENT_URL, FRONTEND_URL } = require('../config/config')
 const { actionTypeEnum, emailActionEnum } = require('../constants')
 const uuid = require('uuid')
 
@@ -19,12 +19,12 @@ module.exports = {
                 password: hashPassword,
                 activationLink
             })
-
-            const sendMail = await emailService.sendActivationMail(email, `${API_URL}/auth/activate/${activationLink}`)
+            
+            // const sendMail = await emailService.sendActivationMail(email, `${API_URL}/auth/activate/${activationLink}`)
 
             res.json({
                 createUser,
-                text: `проверьте почту ${sendMail} и кликните на ссылку активации`
+                text: `проверьте почту ${email} и кликните на ссылку активации`
             })
         } catch (e) {
             next(e)
@@ -43,7 +43,6 @@ module.exports = {
 
             await Amodel.create({ user_id: user._id, ...tokenPair })
 
-            await emailService.sandMailLogin(email)
 
             res.json({
                 ...tokenPair,
@@ -97,22 +96,23 @@ module.exports = {
         try {
             const { user: { _id, name } } = req
             const { email } = req.body
+            
             const token = authService.genrateActionToken({ userId: _id })
-
+            console.log(token)
             await ActionToken.create({
                 token,
                 user_id: _id,
                 actionType: actionTypeEnum.FORGOT_PASSWORD
             })
 
-            const forgotPasswordUrl = `${CLIENT_URL}/password/forgot?token = ${token}`
-
-            await emailService.forgotPassword(email, emailActionEnum.FORGOT_PASSWORD, {
+            const forgotPasswordUrl = `${FRONTEND_URL}/password/forgot?token=${token}`
+            
+            await emailService.sendMail(email, emailActionEnum.FORGOT_PASSWORD, {
                 forgotPasswordUrl,
                 userName: name
             })
 
-            res.json('Logout its ok')
+            res.json('ok')
         } catch (e) {
             next(e)
         }
@@ -120,20 +120,20 @@ module.exports = {
 
     setPasswordAfterForgot: async (req, res, next) => {
         try {
-            const { user: { _id }, body } = req
-            const newPassword = await authService.hashPassword(body.password)
+            const { user, body } = req
 
+            const newPassword = await authService.hashPassword(body.password)
+            
             await User.updateOne(
-                { _id: _id },
+                { _id: user._id },
                 { password: newPassword })
 
-            await Amodel.deleteMany({ user_id: _id })
+            await Amodel.deleteMany({ user_id: user._id })
+            
+            await ActionToken.deleteOne({ token: body.token })
 
-            await ActionToken.deleteMany({ token: body.token })
+            res.json('пароль изменен')
 
-            res.json('Ok')
-
-            next()
         } catch (e) {
             next(e)
         }

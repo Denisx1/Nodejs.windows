@@ -3,6 +3,7 @@ const { authMiddleware } = require('../middlewares')
 const { authController, userController } = require('../controllers')
 const { FORGOT_PASSWORD } = require('../constants')
 const { forgotPasswordJoiSchema } = require('../validator')
+const actinTypeEnum = require('../constants/actinTypeEnum')
 
 const router = Router()
 
@@ -18,9 +19,9 @@ router.post('/logout',authMiddleware.checkAccessToken, authController.logout)
 
 router.post('/regresh', authMiddleware.checkRefreshToken, authController.refresh)
 
-router.post('/password/forgot', authController.forgotPassword)
+router.post('/password/forgot',authMiddleware.validateEmail,authMiddleware.getUserDynamically('email'),  authController.forgotPassword)
 
-router.patch('/password/forgot', authMiddleware.checkActionToken(FORGOT_PASSWORD, forgotPasswordJoiSchema), authController.setPasswordAfterForgot)
+router.patch('/password/forgot', authMiddleware.checkActionToken(actinTypeEnum.FORGOT_PASSWORD, forgotPasswordJoiSchema), authController.setPasswordAfterForgot)
 
 
 module.exports = router

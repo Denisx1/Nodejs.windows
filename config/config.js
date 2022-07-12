@@ -3,6 +3,7 @@ require('dotenv').config()
 module.exports = {
     PORT: process.env.PORT || 5000,
     MONGO_URL: process.env.MONGO_URL,
+    MONGO_URL2: process.env.MONGO_URL2,
     NODE_ENV: process.env.NODE_ENV || 'local',
 
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
@@ -17,6 +18,7 @@ module.exports = {
 
     API_URL: process.env.API_URL,
     CLIENT_URL: process.env.CLIENT_URL,
+    FRONTEND_URL: process.env.FRONTEND_URL,
 
     S3_BUCKET: process.env.S3_BUCKET,
     S3_BUCKET_REGION: process.env.S3_BUCKET_REGION,

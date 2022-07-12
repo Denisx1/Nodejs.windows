@@ -12,7 +12,7 @@ const ApiError = require('./errors/error')
 const cronRun = require('./cronJobs')
 const swaggerJson = require('./swagger.json')
 const socketRouter = require('./routes/socketRouter')
-const { PORT, MONGO_URL, NODE_ENV } = require('./config/config')
+const { PORT, MONGO_URL, NODE_ENV, } = require('./config/config')
 
 
 const app = express()

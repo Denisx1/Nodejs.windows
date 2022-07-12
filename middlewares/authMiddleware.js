@@ -7,11 +7,11 @@ const { authService } = require('../services')
 
 const newUserValidator = (req, res, next) => {
     try {
+        
         const { error, value } = validUser.newUserJoiSchema.validate(req.body)
 
         if (error) {
             next(new ApiError(error.details[0].message, 400))
-            
         }
 
         req.body = value
@@ -35,7 +35,7 @@ const checkEmailIsDublickate = async (req, res, next) => {
         if (isUserPresent) {
             next(new ApiError('This user is Exists'))
         }
-        
+
         next()
     } catch (e) {
         next(e)
@@ -45,7 +45,7 @@ const checkEmailIsDublickate = async (req, res, next) => {
 // const isLoginValid  = (req, res, next)=>{
 //     try{
 //         const { value, error } = loginValidUser.loginJoiSchema.validate(req.body)
-    
+
 //         if(error){
 //             next(new ApiError('Error', 404))
 //         }
@@ -60,34 +60,34 @@ const checkEmailIsDublickate = async (req, res, next) => {
 // // Hard
 const getUserDynamically = (
     paramName = '_id',
-    where = 'body',                                                                                                         
+    where = 'body',
     databasefield = paramName
-    )=>{
-        return async (req, res, next)=>{
-            try{
-                const findObject = req[where]
+) => {
+    return async (req, res, next) => {
+        try {
+            const findObject = req[where]
 
-                if(!findObject || typeof findObject !== 'object'){
-                    next(new ApiError('data is abcent'))
-                    return
-                }
-
-                const param = findObject[paramName]
-                const userx = await User.findOne( { [ databasefield ]: param}).select('password')
-
-                if(!userx){
-                    next(new ApiError('not register'))
-                    return
-                }
-
-                req.user = userx
-
-                next()
-            }catch(e){
-                next(e)
+            if (!findObject || typeof findObject !== 'object') {
+                next(new ApiError('data is abcent'))
+                return
             }
+
+            const param = findObject[paramName]
+            const userx = await User.findOne({ [databasefield]: param }).select('password')
+
+            if (!userx) {
+                next(new ApiError('not register'))
+                return
+            }
+
+            req.user = userx
+
+            next()
+        } catch (e) {
+            next(e)
         }
     }
+}
 
 async function checkAccessToken(req, res, next) {
     try {
@@ -115,24 +115,26 @@ async function checkAccessToken(req, res, next) {
 }
 
 function checkActionToken(actionType) {
-    return async function (req, res, next) {
-        try {
-            const { token } = req.body
-            authService.validateToken(token, actionType)
-
-            const tokenData = await ActionToken.findOne({ token, actionType }).populate('user_id')
-
-            if (!tokenData || !tokenData.user_id) {
-                return next(new ApiError('Token not valid', 400))
-            }
-
-            req.user = tokenData.user_id
-            next()
-        } catch (e) {
-            next(e)
+    return async function(req, res, next) {
+      try {
+        const { token } = req.body
+       
+        authService.validateToken(token, actionType);
+        
+        const tokenData = await ActionToken.findOne({ token, actionType }).populate('user_id');
+    
+        if (!tokenData || !tokenData.user_id) {
+          return next(new ApiError('Token not valid'), 403);
         }
+        
+        req.user = tokenData.user_id;
+        next();
+      } catch (e) {
+        next(e);
+      }
     }
-}
+  }
+
 
 function checkRefreshToken(req, res, next) {
     try {
@@ -150,16 +152,16 @@ async function authValidator(req, res, next) {
     try {
         const { error, value } = loginValidUser.loginJoiSchema.validate(req.body)
 
-        if(error){
-            next(new ApiError('Error', 500))
+        if (error) {
+            next(new ApiError('validation failed', 500))
             return
         }
-    
+
         const userx = await User.findOne({
             email: value.email,
         }).select('password')
 
-        if(!userx){
+        if (!userx) {
             next(new ApiError('not Registered', 500))
             return
         }
@@ -172,6 +174,40 @@ async function authValidator(req, res, next) {
     }
 }
 
+const validateEmail = (req, res, next) => {
+    try {
+        const { error, value } = loginValidUser.emailJoiSchema.validate(req.body)
+       
+        if (error) {
+            next(new ApiError('email is not valid'))
+            return
+        }
+        req.body = value
+        
+        next()
+    } catch (e) {
+        next(e)
+    }
+}
+
+const validPassword = async (req, res, next) => {
+    try {
+        const { user, body: { password } } = req
+        const { error } = req.body
+
+        if (error) {
+            next(new ApiError('password is not valid'))
+            return
+        }
+        await authService.comparePassword(user.password, password)
+
+        next()
+    } catch (e) {
+        next(e)
+    }
+}
+
+
 
 
 
@@ -183,5 +219,7 @@ module.exports = {
     checkRefreshToken,
     authValidator,
     checkActionToken,
-    getUserDynamically
+    getUserDynamically,
+    validateEmail,
+    validPassword
 }

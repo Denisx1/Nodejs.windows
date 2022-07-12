@@ -1,4 +1,4 @@
-const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET} = require('../config/config')
+const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, ACTION_TOKEN_SECRET} = require('../config/config')
 const { tokenTypeEnum, actionTypeEnum } = require('../constants')
 const ApiError = require('../errors/error')
 const bcrypt = require('bcrypt')
@@ -32,29 +32,25 @@ function genrateActionToken(actionType, encodeData = {}){
         return jwt.sign(encodeData, 's', {expiresIn: '24h'})
 } 
 
-/**
- * 
- * @param token - this is token to check: 13rtwretiuy9qowlkag
- * @param tokenType 
- * @returns {*} 
- */
+
 function validateToken(token, tokenType = tokenTypeEnum.ACCESS) {
-    try{
-        let secret = ACCESS_TOKEN_SECRET
-
-        if(tokenType===tokenTypeEnum.REFRESH){
-            secret = REFRESH_TOKEN_SECRET
-        }
-        if(tokenType === actionTypeEnum.FORGOT_PASSWORD){
-            secret = ACCESS_TOKEN_SECRET
-        }
-
-        return jwt.verify(token, secret)
-
-    }catch(e){
-        throw new ApiError(e.message || 'Invalid Token', 401)
+    try {
+      let secretWord = ACCESS_TOKEN_SECRET;
+  
+      if (tokenType === tokenTypeEnum.REFRESH) {
+        secretWord = REFRESH_TOKEN_SECRET
+      }
+  
+      if (tokenType === actionTypeEnum.FORGOT_PASSWORD) {
+        secretWord = ACTION_TOKEN_SECRET
+      }
+      
+      return jwt.decode(token, secretWord);
+      
+    } catch (e) {
+      throw new ApiError(e.message || 'Invalid token', 401);
     }
-}
+  }
 
 
 
